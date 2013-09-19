@@ -1,0 +1,31 @@
+Prefer message encoding to list encoding on decorating a message.
+
+See also:
+  http://www.mail-archive.com/mailman-users%40python.org/msg49637.html
+
+-- fumiyas, 2008-09-09
+
+--- mailman-2.1.11/Mailman/Handlers/Decorate.py.dist	2008-07-01 01:29:46.000000000 +0900
++++ mailman-2.1.11/Mailman/Handlers/Decorate.py	2008-09-09 01:23:35.000000000 +0900
+@@ -109,15 +109,14 @@ def process(mlist, msg, msgdata):
+                 endsep = u'\n'
+             payload = uheader + frontsep + oldpayload + endsep + ufooter
+             try:
+-                # first, try encode with list charset
++                # first, try encode with message charset
++                payload = payload.encode(mcset)
++                newcset = mcset
++            except UnicodeError:
++                # if fail, try encode with list charset
+                 payload = payload.encode(lcset)
+                 newcset = lcset
+-            except UnicodeError:
+-                if lcset != mcset:
+-                    # if fail, encode with message charset (if different)
+-                    payload = payload.encode(mcset)
+-                    newcset = mcset
+-                    # if this fails, fallback to outer try and wrap=true
++                # if this fails, fallback to outer try and wrap=true
+             format = msg.get_param('format')
+             delsp = msg.get_param('delsp')
+             del msg['content-transfer-encoding']
