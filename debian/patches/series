@@ -9,3 +9,12 @@
 63_update_default_server_language.patch
 66_donot_let_cache_html_pages.patch
 79_archiver_slash.patch
+## OSSTech patches
+mailman-2.1.11-prefer-message-encoding.patch
+mailman-2.1.16rc2-postfix-verp.patch
+mailman-2.1.11-no-load-iso2022jp.patch
+#mailman-2.1.11-subject-re-command.patch
+#mailman-2.1.11-sender-info-in-headfoot.patch
+#mailman-2.1.11-aliases-mode.patch
+#mailman-2.1.14-qrunner-once-all-jobs.patch
+test
