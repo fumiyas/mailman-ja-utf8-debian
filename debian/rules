@@ -32,7 +32,18 @@ build: build-arch build-indep
 build-arch: build-stamp
 build-indep: build-stamp
 build-stamp: Makefile debian/po/templates.pot
+	cp -a messages/ja messages/ja.utf8
+	cp -a templates/ja templates/ja.utf8
+	perl -pi -MEncode \
+	  -e 'Encode::from_to($$_, "EUC-JP", "UTF-8");' \
+	  -e 's/EUC-JP/UTF-8/;' \
+	  messages/ja.utf8/LC_MESSAGES/mailman.po \
+	  messages/ja.utf8/README.ja \
+	  templates/ja.utf8/*.* \
+	;
 	$(MAKE)
+	$(MAKE) -C messages LANGUAGES=ja.utf8
+	$(MAKE) -C templates LANGUAGES=ja.utf8
 	sed 's,@VERSION@,$(VERSION),g' < debian/preinst.in > debian/preinst
 	touch build-stamp
 
@@ -50,6 +61,8 @@ clean:
 	dh_testdir
 	dh_testroot
 	[ ! -f Makefile ] || $(MAKE) distclean
+	rm -rf messages/ja.utf8
+	rm -rf templates/ja.utf8
 	rm -rf build-stamp Makefile debian/ucffiles debian/mailman.postinst.ucf
 	rm -f debian/mailman.postrm.ucf
 	rm -f debian/preinst
@@ -75,6 +88,26 @@ binary-arch:	build
 		var_prefix=$$(pwd)/debian/mailman/var/lib/$(package) \
 		icondir=$$(pwd)/debian/mailman/usr/share/images/mailman \
 		ICONDIR=$$(pwd)/debian/mailman/usr/share/images/mailman
+
+	$(MAKE) -C messages LANGUAGES=ja.utf8 \
+	  doinstall prefix=$$(pwd)/debian/mailman/var/lib/$(package) \
+	;
+	rm -r debian/mailman/var/lib/mailman/messages/ja
+	mv debian/mailman/var/lib/mailman/messages/ja.utf8 \
+	   debian/mailman/var/lib/mailman/messages/ja \
+	;
+	$(MAKE) -C templates LANGUAGES=ja.utf8 \
+	  install prefix=$$(pwd)/debian/mailman/var/lib/$(package) \
+        ;
+	rm -r debian/mailman/var/lib/mailman/templates/ja
+	mv debian/mailman/var/lib/mailman/templates/ja.utf8 \
+	   debian/mailman/var/lib/mailman/templates/ja \
+	;
+	perl -pi -MEncode \
+	  -e 'Encode::from_to($$_, "EUC-JP", "UTF-8");' \
+	  debian/mailman/usr/share/mailman/ja/*.* \
+	  debian/mailman/usr/share/doc/mailman/examples/*.* \
+	;
 
 	rmdir debian/$(package)/var/lib/mailman/pythonlib
 	rm -r debian/$(package)/var/lib/mailman/tests
@@ -130,6 +163,10 @@ binary-arch:	build
 	dh_installdebconf
 	dh_installexamples templates/* debian/mm_cfg.py \
 		debian/mailman/usr/lib/$(package)/Mailman/Defaults.py
+	rm -rf debian/mailman/usr/share/doc/mailman/examples/ja
+	mv debian/mailman/usr/share/doc/mailman/examples/ja.utf8 \
+	   debian/mailman/usr/share/doc/mailman/examples/ja \
+	;
 	dh_strip
 	dh_compress -Xmailman-admin.pdf -Xmailman-install.pdf -Xmailman-member-es.pdf -Xmailman-member.pdf
 	dh_fixperms
