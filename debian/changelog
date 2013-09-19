@@ -5,6 +5,7 @@ mailman (2:2.1.16~rc2-1.1) UNRELEASED; urgency=low
     - mailman-2.1.11-prefer-message-encoding.patch
     - mailman-2.1.16rc2-postfix-verp.patch
     - mailman-2.1.11-no-load-iso2022jp.patch
+  * Use UTF-8 for Japanese encoding instead of EUC-JP
 
  -- SATOH Fumiyasu <fumiyas at osstech>  Fri, 20 Sep 2013 00:30:46 +0900
 
