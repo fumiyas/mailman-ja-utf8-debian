@@ -15,6 +15,6 @@ mailman-2.1.16rc2-postfix-verp.patch
 mailman-2.1.11-no-load-iso2022jp.patch
 #mailman-2.1.11-subject-re-command.patch
 #mailman-2.1.11-sender-info-in-headfoot.patch
-#mailman-2.1.11-aliases-mode.patch
+mailman-2.1.11-aliases-mode.patch
 #mailman-2.1.14-qrunner-once-all-jobs.patch
 mailman-2.1.16rc2-ja-utf8.patch
