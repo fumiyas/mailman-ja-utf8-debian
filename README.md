@@ -21,6 +21,16 @@ Debian の Mailman 2.1 パッケージに以下の独自変更・拡張を加え
     aliases, virtual-mailman ファイルと一致させる。
   * 保存書庫の mbox ファイルを月一回ローテート、圧縮する。
   * 不正な日本語文字エンコーディングを含むメールの対応。
-    * Python-NKF の nkf_codecs を利用。(別途インストール)
+    * Python-NKF の nkf_codecs を利用。(要インストール。`pip install nkf`)
     * https://github.com/fumiyas/python-nkf
+
+参照
+----------------------------------------------------------------------
+
+  * Mailman
+    * http://www.list.org/
+    * https://launchpad.net/mailman
+  * Debian Mailman パッケージのリポジトリー
+    * http://anonscm.debian.org/viewvc/pkg-mailman/trunk/
+    * svn://anonscm.debian.org/pkg-mailman/trunk
 
