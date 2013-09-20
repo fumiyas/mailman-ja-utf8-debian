@@ -38,6 +38,14 @@ setting by using the value as a format string against the
 list-instance-object's dictionary - see the distributed value of
 DEFAULT_MSG_FOOTER for an example."""
 
+## Override Japanese codecs by NKF codecs (if available) to
+## treat invalid encoded Japanese messages from bogus MUAs.
+## NOTE: mailman-no-load-iso2022jp.patch required
+try:
+    import nkf_codecs
+    nkf_codecs.overrideEncodings()
+except:
+    pass
 
 #######################################################
 #    Here's where we get the distributed defaults.    #
