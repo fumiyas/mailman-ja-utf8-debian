@@ -8,6 +8,7 @@ mailman (2:2.1.16-1.1) UNRELEASED; urgency=low
     - mailman-2.1.11-aliases-mode.patch
   * Use UTF-8 for Japanese encoding instead of EUC-JP
   * Add bin/run.py and cron/rotate-mbox
+  * mm_cfg.py: Enable nkf_codecs if Python-NKF is available
 
  -- SATOH Fumiyasu <fumiyas at osstech>  Fri, 20 Sep 2013 17:03:25 +0900
 
