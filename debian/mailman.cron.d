@@ -25,3 +25,6 @@
 #
 # At 4:30AM daily, cull old entries from the 'bad' and 'shunt' queues.
 30 4 * * * list [ -x /usr/lib/mailman/cron/cull_bad_shunt ] && /usr/lib/mailman/cron/cull_bad_shunt
+#
+# Rotate mbox archive
+0 0 1 * * list [ -x /usr/lib/mailman/cron/rotate-mbox ] && /usr/lib/mailman/cron/rotate-mbox --all-lists 2>&1|logger -p mail.notice -t "Mailman: rotaete-mbox"

@@ -6,8 +6,9 @@ mailman (2:2.1.16-1.1) UNRELEASED; urgency=low
     - mailman-2.1.16rc2-postfix-verp.patch
     - mailman-2.1.11-no-load-iso2022jp.patch
   * Use UTF-8 for Japanese encoding instead of EUC-JP
+  * Add bin/run.py and cron/rotate-mbox
 
- -- SATOH Fumiyasu <fumiyas at osstech>  Fri, 20 Sep 2013 00:30:46 +0900
+ -- SATOH Fumiyasu <fumiyas at osstech>  Fri, 20 Sep 2013 17:03:25 +0900
 
 mailman (1:2.1.16-1) unstable; urgency=low
 
