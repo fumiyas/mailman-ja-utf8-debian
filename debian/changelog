@@ -10,7 +10,7 @@ mailman (2:2.1.16-1.1) UNRELEASED; urgency=low
   * Add bin/run.py and cron/rotate-mbox
   * mm_cfg.py: Enable nkf_codecs if Python-NKF is available
 
- -- SATOH Fumiyasu <fumiyas at osstech>  Fri, 20 Sep 2013 17:03:25 +0900
+ -- SATOH Fumiyasu <fumiyas at osstech>  Thu, 07 Nov 2013 18:24:40 +0900
 
 mailman (1:2.1.16-1) unstable; urgency=low
 
