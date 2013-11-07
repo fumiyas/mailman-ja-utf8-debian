@@ -1,3 +1,13 @@
+mailman (2:2.1.16-1.1) UNRELEASED; urgency=low
+
+  * Non-maintainer upload.
+  * Add some OSSTech patches:
+    - mailman-2.1.11-prefer-message-encoding.patch
+    - mailman-2.1.16rc2-postfix-verp.patch
+    - mailman-2.1.11-no-load-iso2022jp.patch
+
+ -- SATOH Fumiyasu <fumiyas at osstech>  Fri, 20 Sep 2013 00:30:46 +0900
+
 mailman (1:2.1.16-1) unstable; urgency=low
 
   * New upstream release.
