@@ -10,6 +10,7 @@
 66_donot_let_cache_html_pages.patch
 79_archiver_slash.patch
 ## OSSTech patches
+mailman-2.1-no-description-in-header.patch
 mailman-2.1.11-prefer-message-encoding.patch
 mailman-2.1.16rc2-postfix-verp.patch
 mailman-2.1.11-no-load-iso2022jp.patch

@@ -1,0 +1,58 @@
+From 13f5b3a41210d0005200dc517a3bb64909fbed09 Mon Sep 17 00:00:00 2001
+From: SATOH Fumiyasu <fumiyas@osstech.co.jp>
+Date: Wed, 5 Mar 2014 00:28:26 +0900
+Subject: [PATCH] CookHeaders: Don't include the list description in headers
+
+Mailman includes mlist.description in Reply-To and List-Id
+headers in Utils.GetCharSet(mlist.preferred_language) encoding.
+This encoding can be different from headers in post messages.
+
+This situation affects buggy MUAs (e.g., Becky! Internet Mail)
+that generate broken encoded headers.
+---
+ Mailman/Handlers/CookHeaders.py | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
+
+diff --git a/Mailman/Handlers/CookHeaders.py b/Mailman/Handlers/CookHeaders.py
+index 991c500..d0be9b0 100755
+--- a/Mailman/Handlers/CookHeaders.py
++++ b/Mailman/Handlers/CookHeaders.py
+@@ -171,8 +171,7 @@ def process(mlist, msg, msgdata):
+         # because some folks think that some MUAs make it easier to delete
+         # addresses from the right than from the left.
+         if mlist.reply_goes_to_list == 1:
+-            i18ndesc = uheader(mlist, mlist.description, 'Reply-To')
+-            add((str(i18ndesc), mlist.GetListEmail()))
++            add(('', mlist.GetListEmail()))
+         # Don't put Reply-To: back if there's nothing to add!
+         if new:
+             # Preserve order
+@@ -201,8 +200,7 @@ def process(mlist, msg, msgdata):
+             d = {}
+             for pair in getaddresses(msg.get_all('cc', [])):
+                 add(pair)
+-            i18ndesc = uheader(mlist, mlist.description, 'Cc')
+-            add((str(i18ndesc), mlist.GetListEmail()))
++            add(('', mlist.GetListEmail()))
+             # We don't worry about what AvoidDuplicates may have done with a
+             # Cc: header or using change_header here since we never get here
+             # if from_is_list is allowed and True.
+@@ -220,14 +218,7 @@ def process(mlist, msg, msgdata):
+     # This will act like an email address for purposes of formataddr()
+     listid = '%s.%s' % (mlist.internal_name(), mlist.host_name)
+     cset = Utils.GetCharSet(mlist.preferred_language)
+-    if mlist.description:
+-        # Don't wrap the header since here we just want to get it properly RFC
+-        # 2047 encoded.
+-        i18ndesc = uheader(mlist, mlist.description, 'List-Id', maxlinelen=998)
+-        listid_h = formataddr((str(i18ndesc), listid))
+-    else:
+-        # without desc we need to ensure the MUST brackets
+-        listid_h = '<%s>' % listid
++    listid_h = '<%s>' % listid
+     # We always add a List-ID: header.
+     change_header('List-Id', listid_h, mlist, msg, msgdata)
+     # For internally crafted messages, we also add a (nonstandard),
+-- 
+1.9.0
+
