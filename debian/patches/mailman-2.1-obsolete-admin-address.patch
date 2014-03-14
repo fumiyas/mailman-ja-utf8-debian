@@ -1,0 +1,26 @@
+Remove obsolete -admin address to be used for listname
+
+-- fumiyas, 2014-03-01
+
+diff --git a/Mailman/MTA/Utils.py b/Mailman/MTA/Utils.py
+index 07d8bca..d4bfffa 100644
+--- a/Mailman/MTA/Utils.py
++++ b/Mailman/MTA/Utils.py
+@@ -53,7 +53,7 @@ def _makealiases_mailprog(listname):
+     # Seed this with the special cases.
+     aliases = [(listname,          '"|%s post %s"' % (wrapper, safename)),
+                ]
+-    for ext in ('admin', 'bounces', 'confirm', 'join', 'leave', 'owner',
++    for ext in ('bounces', 'confirm', 'join', 'leave', 'owner',
+                 'request', 'subscribe', 'unsubscribe'):
+         aliases.append(('%s-%s' % (listname, ext),
+                         '"|%s %s %s"' % (wrapper, ext, safename)))
+@@ -71,7 +71,7 @@ def _makealiases_maildir(listname):
+     # Note, don't use this unless your MTA leaves the envelope recipient in
+     # Delivered-To:, Envelope-To:, or Apparently-To:
+     aliases = [(listname, maildir)]
+-    for ext in ('admin', 'bounces', 'confirm', 'join', 'leave', 'owner',
++    for ext in ('bounces', 'confirm', 'join', 'leave', 'owner',
+                 'request', 'subscribe', 'unsubscribe'):
+         aliases.append(('%s-%s' % (listname, ext), maildir))
+     return aliases
