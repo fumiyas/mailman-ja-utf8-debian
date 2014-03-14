@@ -1,0 +1,44 @@
+From 26e735003d82486b6bb289c40b82cdd44f44a6b0 Mon Sep 17 00:00:00 2001
+From: Mark Sapiro <mark@msapiro.net>
+Date: Thu, 9 Jan 2014 10:44:08 -0800
+Subject: [PATCH] Fixed POSTFIX_STYLE_VIRTUAL_DOMAINS to be case-insensitiive.
+
+---
+ Mailman/MTA/Postfix.py | 10 +++++++---
+ NEWS                   |  3 +++
+ 2 files changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/Mailman/MTA/Postfix.py b/Mailman/MTA/Postfix.py
+index 801ddc0..9987e4c 100644
+--- a/Mailman/MTA/Postfix.py
++++ b/Mailman/MTA/Postfix.py
+@@ -116,6 +116,10 @@ def _addlist(mlist, fp):
+ 
+ 
+ 
++def _isvirtual(mlist):
++    return (mlist and mlist.host_name.lower() in
++            [d.lower() for d in mm_cfg.POSTFIX_STYLE_VIRTUAL_DOMAINS])
++
+ def _addvirtual(mlist, fp):
+     listname = mlist.internal_name()
+     fieldsz = len(listname) + len('-unsubscribe')
+@@ -233,7 +237,7 @@ def create(mlist, cgi=False, nolock=False, quiet=False):
+     # Do the aliases file, which need to be done in any case
+     try:
+         _do_create(mlist, ALIASFILE, _addlist)
+-        if mlist and mlist.host_name in mm_cfg.POSTFIX_STYLE_VIRTUAL_DOMAINS:
++        if _isvirtual(mlist):
+             _do_create(mlist, VIRTFILE, _addvirtual)
+         # bin/genaliases is the only one that calls create with nolock = True.
+         # Use that to only update the maps at the end of genaliases.
+@@ -304,7 +308,7 @@ def remove(mlist, cgi=False):
+     lock.lock()
+     try:
+         _do_remove(mlist, ALIASFILE, False)
+-        if mlist.host_name in mm_cfg.POSTFIX_STYLE_VIRTUAL_DOMAINS:
++        if _isvirtual(mlist):
+             _do_remove(mlist, VIRTFILE, True)
+         # Regenerate the alias and map files
+         _update_maps()
+

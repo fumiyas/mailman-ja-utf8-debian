@@ -12,6 +12,7 @@
 ## OSSTech patches
 mailman-2.1-no-description-in-header.patch
 mailman-2.1-obsolete-admin-address.patch
+mailman-2.1.17-postfix-virtual-case.patch
 mailman-2.1.11-prefer-message-encoding.patch
 mailman-2.1.16rc2-postfix-verp.patch
 mailman-2.1.11-no-load-iso2022jp.patch
