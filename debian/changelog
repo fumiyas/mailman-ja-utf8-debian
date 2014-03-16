@@ -1,4 +1,13 @@
-mailman (2:2.1.16-1.1) UNRELEASED; urgency=low
+mailman (2:2.1.16-1.2) UNRELEASED; urgency=medium
+
+  * Add some OSSTech patches:
+    - mailman-2.1-no-description-in-header.patch
+    - mailman-2.1-obsolete-admin-address.patch
+    - mailman-2.1.17-postfix-virtual-case.patch
+
+ -- SATOH Fumiyasu <fumiyas at osstech>  Sun, 16 Mar 2014 15:54:05 +0900
+
+mailman (2:2.1.16-1.1) unstable; urgency=low
 
   * Non-maintainer upload.
   * Add some OSSTech patches:
