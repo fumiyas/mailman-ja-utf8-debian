@@ -1,0 +1,96 @@
+From 2305e2e132c21de8ac7045ea750de93df75298e6 Mon Sep 17 00:00:00 2001
+From: SATOH Fumiyasu <fumiyas@osstech.co.jp>
+Date: Fri, 11 Apr 2014 00:33:03 +0900
+Subject: [PATCH] Send a bounce notice to the owner if bounce_processing=False
+
+---
+ Mailman/Queue/BounceRunner.py      | 32 ++++++++++++++++++++++++++++++++
+ messages/ja/LC_MESSAGES/mailman.po | 22 ++++++++++++++++++++++
+ 2 files changed, 54 insertions(+)
+
+diff --git a/Mailman/Queue/BounceRunner.py b/Mailman/Queue/BounceRunner.py
+index fcd6e3f..d0bbb4b 100644
+--- a/Mailman/Queue/BounceRunner.py
++++ b/Mailman/Queue/BounceRunner.py
+@@ -223,6 +223,7 @@ class BounceRunner(Runner, BounceMixin):
+             return
+         # List isn't doing bounce processing?
+         if not mlist.bounce_processing:
++            maybe_forward_wo_processing(mlist, msg)
+             return
+         # Try VERP detection first, since it's quick and easy
+         addrs = verp_bounce(mlist, msg)
+@@ -334,6 +335,37 @@ def verp_probe(mlist, msg):
+ 
+ 
+ 
++def maybe_forward_wo_processing(mlist, msg):
++    # Does the list owner want to get non-processing bounce messages?
++    # If not, simply discard it.
++    if mlist.bounce_unrecognized_goes_to_list_owner:
++        adminurl = mlist.GetScriptURL('admin', absolute=1) + '/bounce'
++        realname = mlist.real_name
++
++        mlist.ForwardMessage(msg,
++                             text=_("""\
++The attached message was received as a bounce. This mailing list has been
++configured to all unprocessed bounce messages to the list administrator(s).
++
++For more information see:
++%(adminurl)s
++
++"""),
++
++                             subject=_('%(realname)s bounce notification'),
++                             tomoderators=0)
++        syslog('bounce',
++               '%s: forwarding unprocessed, message-id: %s',
++               mlist.internal_name(),
++               msg.get('message-id', 'n/a'))
++    else:
++        syslog('bounce',
++               '%s: discarding unprocessed, message-id: %s',
++               mlist.internal_name(),
++               msg.get('message-id', 'n/a'))
++
++
++
+ def maybe_forward(mlist, msg):
+     # Does the list owner want to get non-matching bounce messages?
+     # If not, simply discard it.
+diff --git a/messages/ja/LC_MESSAGES/mailman.po b/messages/ja/LC_MESSAGES/mailman.po
+index 8bab795..1ae4930 100755
+--- a/messages/ja/LC_MESSAGES/mailman.po
++++ b/messages/ja/LC_MESSAGES/mailman.po
+@@ -7818,6 +7818,28 @@ msgstr "%(name)s 
+ msgid "Last autoresponse notification for today"
+ msgstr "今日最後に送られた自動応答の通知"
+ 
++#: Mailman/Queue/BounceRunner.py:XXX
++msgid ""
++"The attached message was received as a bounce. This mailing list has been\n"
++"configured to all unprocessed bounce messages to the list administrator(s).\n"
++"\n"
++"For more information see:\n"
++"%(adminurl)s\n"
++"\n"
++msgstr ""
++"添付のメールを配送エラーとして受け取りました.\n"
++"このメーリングリストでは, 配送エラーをリスト管理者に\n"
++"転送する設定になっています.\n"
++"\n"
++"詳しくは:\n"
++"%(adminurl)s\n"
++"をご覧ください.\n"
++"\n"
++
++#: Mailman/Queue/BounceRunner.py:XXX
++msgid "%(realname)s bounce notification"
++msgstr "%(realname)s 配送エラー通知"
++
+ #: Mailman/Queue/BounceRunner.py:343
+ msgid ""
+ "The attached message was received as a bounce, but either the bounce format\n"
+-- 
+1.9.1
+
