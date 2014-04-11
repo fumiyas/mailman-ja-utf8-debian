@@ -1,7 +1,7 @@
 Debian/Ubuntu 用 Mailman 2.1 パッケージ + 日本語 UTF-8 対応 + α
 ======================================================================
 
-  * Copyright (c) 2013 SATOH Fumiyasu @ OSS Technology Corp., Japan
+  * Copyright (c) 2013-2014 SATOH Fumiyasu @ OSS Technology Corp., Japan
   * License: GNU General Public License version 2
   * URL: <https://github.com/fumiyas/mailman-ja-utf8-debian>
   * Blog: <http://fumiyas.github.io/>
@@ -26,6 +26,7 @@ Debian の Mailman 2.1 パッケージに以下の独自変更・拡張を加え
       list:list になり、list 権限で書き込めるようになる)
   * 保存書庫の mbox ファイルを月一回ローテート、圧縮する。
     * FIXME: 現状では `arch --wipe` したときに処理対象にならないので注意。
+  * 各種通知メッセージの Subject にリスト名を含める。
   * エラーメールを自動処理しない設定 (かつ配送エラー自動検出で検出できなかった
     エラーメールをリスト管理者宛に送る設定) のとき、エラーメールを黙って
     捨てずにリスト管理者宛に転送する。
