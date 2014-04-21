@@ -59,6 +59,9 @@ TODO
   * `arch` をローテートした mbox ファイルに対応。
   * `subject_prefix` のスレッド ID 対応。
     * https://gist.github.com/fumiyas/8272130
+  * 少し壊れたヘッダー MIME エンコーディング対応
+    * [Python-ml-jp 5042] Re: メールの日本語件名を記述通り復元するには？
+      * http://www.python.jp/pipermail/python-ml-jp/2010-September/010534.html
 
 参照
 ----------------------------------------------------------------------
