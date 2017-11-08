@@ -14,6 +14,12 @@ binaries=list_lists find_member config_list mmsitepass newlist rmlist	\
 
 SHELL=/bin/bash
 
+SUBST = perl -p \
+	-e 's|\@MM_USER\@|list|g;' \
+	-e 's|\@MM_BINDIR\@|/usr/lib/mailman/bin|g;' \
+	-e 's|\@MM_VARDIR\@|/var/lib/mailman|g;' \
+	#
+
 # the '-include' is for compatibility with squeeze.
 # replace with 'include' after squeeze support is over, or
 # replace with 'include /usr/share/dpkg/default.mk' to replace vars above
@@ -33,6 +39,8 @@ build-arch: build-stamp
 build-indep: build-stamp
 build-stamp: Makefile debian/po/templates.pot
 	$(MAKE)
+	$(SUBST) debian/withlist-run.py >run.py
+	$(SUBST) debian/mailman-rotate-mbox.bash >rotate-mbox.bash
 	sed 's,@VERSION@,$(VERSION),g' < debian/preinst.in > debian/preinst
 	touch build-stamp
 
@@ -53,6 +61,8 @@ clean:
 	rm -rf build-stamp Makefile debian/ucffiles debian/mailman.postinst.ucf
 	rm -f debian/mailman.postrm.ucf
 	rm -f debian/preinst
+	rm -f run.py
+	rm -f rotate-mbox.bash
 	dh_clean
 	chmod +x debian/{prerm,postinst}
 
@@ -94,6 +104,11 @@ binary-arch:	build
 	for i in debian/mailman/usr/lib/$(package)/*; do \
 	   dh_link usr/lib/$(package)/`basename $$i` var/lib/$(package)/`basename $$i`; \
 	done
+
+	install -m 0755 run.py \
+	  debian/mailman/usr/lib/mailman/bin/run.py
+	install -m 0755 rotate-mbox.bash \
+	  debian/mailman/usr/lib/mailman/cron/rotate-mbox
 
 	# Link cgi-bin as well
 	dh_link usr/lib/cgi-bin/$(package) var/lib/$(package)/cgi-bin
