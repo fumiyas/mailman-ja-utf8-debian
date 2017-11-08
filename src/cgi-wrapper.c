@@ -42,8 +42,7 @@ main(int argc, char** argv, char** env)
         char* fake_argv[3];
 
         running_as_cgi = 1;
-        if (getgid() >= 100 && getgid() != 65534)
-                check_caller(logident, parentgroup);
+        check_caller(logident, parentgroup);
 
         /* For these CGI programs, we can ignore argc and argv since they
          * don't contain anything useful.  `script' will always be the driver

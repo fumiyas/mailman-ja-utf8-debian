@@ -146,6 +146,8 @@ class Archiver:
                 'listname': self.internal_name(),
                 'hostname': hostname
                 }
+            if not url.endswith('/'):
+                url += '/'
             return url
 
     def __archive_file(self, afn):

@@ -302,8 +302,7 @@ class Document(Container):
         charset = 'us-ascii'
         if self.language and Utils.IsLanguage(self.language):
             charset = Utils.GetCharSet(self.language)
-        output = ['Content-Type: text/html; charset=%s' % charset]
-        output.append('Cache-control: no-cache\n')
+        output = ['Content-Type: text/html; charset=%s\n' % charset]
         if not self.suppress_head:
             kws.setdefault('bgcolor', self.bgcolor)
             tab = ' ' * indent
@@ -644,33 +643,24 @@ GNU_HEAD = 'gnu-head-tiny.jpg'
 
 def MailmanLogo():
     t = Table(border=0, width='100%')
-
-    version = mm_cfg.VERSION
-    mmlink = _("Delivered by Mailman")
-    pylink = _("Python Powered")
-    gnulink = _("GNU's Not Unix")
-    if mm_cfg.SITE_LINK:
-        sitelink = mm_cfg.SITE_TEXT
-
     if mm_cfg.IMAGE_LOGOS:
-        def logo(file, alt, base=mm_cfg.IMAGE_LOGOS):
-            return '<img src="%s" alt="%s" border="0" />' % \
-              (base + file, alt)
-        mmlink = logo(DELIVERED_BY, mmlink)
-        pylink = logo(PYTHON_POWERED, pylink)
-        gnulink = logo(GNU_HEAD, gnulink)
-        if mm_cfg.SITE_LINK:
-            sitelink = logo(mm_cfg.SITE_LOGO, sitelink, "")
-
-    mmlink = Link(MAILMAN_URL, mmlink + _('<br>version %(version)s'))
-    pylink = Link(PYTHON_URL, pylink)
-    gnulink = Link(GNU_URL, gnulink)
-    links = [mmlink, pylink, gnulink]
-    if mm_cfg.SITE_LINK:
-        if mm_cfg.SITE_URL:
-            sitelink = Link(mm_cfg.SITE_URL, sitelink)
-        links.append(sitelink)
-    t.AddRow(links)
+        def logo(file):
+            return mm_cfg.IMAGE_LOGOS + file
+        mmlink = '<img src="%s" alt="Delivered by Mailman" border=0>' \
+                 '<br>version %s' % (logo(DELIVERED_BY), mm_cfg.VERSION)
+        pylink = '<img src="%s" alt="Python Powered" border=0>' % \
+                 logo(PYTHON_POWERED)
+        gnulink = '<img src="%s" alt="GNU\'s Not Unix" border=0>' % \
+                  logo(GNU_HEAD)
+        t.AddRow([mmlink, pylink, gnulink])
+    else:
+        # use only textual links
+        version = mm_cfg.VERSION
+        mmlink = Link(MAILMAN_URL,
+                      _('Delivered by Mailman<br>version %(version)s'))
+        pylink = Link(PYTHON_URL, _('Python Powered'))
+        gnulink = Link(GNU_URL, _("Gnu's Not Unix"))
+        t.AddRow([mmlink, pylink, gnulink])
     return t
 
 

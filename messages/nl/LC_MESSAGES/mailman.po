@@ -2434,7 +2434,6 @@ msgstr ""
 "wijziging\n"
 "is daarom geweigerd.  Als u toch deze wijzigingen wilt aanbrengen, heeft u\n"
 "shell access nodig voor uw Mailman server.\n"
-"             "
 
 #: Mailman/Cgi/edithtml.py:214
 msgid "See "
@@ -3963,7 +3962,7 @@ msgstr ""
 "        en zonder aanhalingstekens!) uw lidmaatschapsadres. Als u het \n"
 "        wachtwoord van de lijstbeheerder of moderator opgeeft, zullen ook "
 "de\n"
-"        verborgen leden worden vermeld.\n"
+"        verborgen leden worden vermeld."
 
 #: Mailman/Commands/cmd_who.py:46
 msgid ""
@@ -6272,7 +6271,6 @@ msgstr ""
 "Deze wijziiging kan gemaakt worden met bin/withlist of met bin/config_list "
 "door het\n"
 "instellen van mlist.info.\n"
-"                        "
 
 #: Mailman/Gui/General.py:560
 msgid ""

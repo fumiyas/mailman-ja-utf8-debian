@@ -23,9 +23,6 @@
 # mm_cfg.py instead, in the designated area.  See the comments in that file
 # for details.
 
-import sys
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 import os
 
@@ -57,7 +54,7 @@ No = no = Off = off = False
 # disable Mailman's logo footer altogther, hack
 # Mailman/htmlformat.py:MailmanLogo(), which also contains the hardcoded links
 # and image names.
-IMAGE_LOGOS = '/doc/mailman/images/'
+IMAGE_LOGOS = '/icons/'
 
 # The name of the Mailman favicon
 SHORTCUT_ICON = 'mm-icon.png'
@@ -66,12 +63,6 @@ SHORTCUT_ICON = 'mm-icon.png'
 MAILMAN_URL = 'http://www.gnu.org/software/mailman/index.html'
 #MAILMAN_URL = 'http://www.list.org/'
 #MAILMAN_URL = 'http://mailman.sf.net/'
-
-# The site logo/text presence, site text, site url and site logo
-SITE_LINK = Yes
-SITE_TEXT = 'Debian Powered'
-SITE_URL = 'https://www.debian.org/'
-SITE_LOGO = '/images/mailman/debianpowered.png'
 
 # Mailman needs to know about (at least) two fully-qualified domain names
 # (fqdn); 1) the hostname used in your urls, and 2) the hostname used in email
@@ -94,7 +85,7 @@ SITE_LOGO = '/images/mailman/debianpowered.png'
 # because otherwise the default mappings won't be correct.
 DEFAULT_EMAIL_HOST = '@MAILHOST@'
 DEFAULT_URL_HOST = '@URLHOST@'
-DEFAULT_URL_PATTERN = 'http://%s/cgi-bin/mailman/'
+DEFAULT_URL_PATTERN = 'http://%s/mailman/'
 
 # DEFAULT_HOST_NAME has been replaced with DEFAULT_EMAIL_HOST, however some
 # sites may have the former in their mm_cfg.py files.  If so, we'll believe
@@ -322,7 +313,7 @@ DEFAULT_SUBSCRIBE_OR_INVITE = No
 # interpolate the name of the list into this.  You can also include a
 # "%(hostname)s" in the string, into which Mailman will interpolate
 # the host name (usually DEFAULT_URL_HOST).
-PUBLIC_ARCHIVE_URL = 'http://%(hostname)s/pipermail/%(listname)s/'
+PUBLIC_ARCHIVE_URL = 'http://%(hostname)s/pipermail/%(listname)s'
 
 # Are archives on or off by default?
 DEFAULT_ARCHIVE = On
@@ -453,7 +444,7 @@ ARCHIVER_OBSCURES_EMAILADDRS = Yes
 # is used in MIME to refer to a method of converting a sequence of
 # octets into a sequence of characters.  If you change the default
 # charset, you might need to add it to VERBATIM_ENCODING below.
-DEFAULT_CHARSET = 'utf-8'
+DEFAULT_CHARSET = None
 
 # Most character set encodings require special HTML entity characters to be
 # quoted, otherwise they won't look right in the Pipermail archives.  However
@@ -462,7 +453,7 @@ DEFAULT_CHARSET = 'utf-8'
 # encodings where the octet 0x26 does not always represent the & character.
 # This variable contains a list of such characters sets which are not
 # HTML-quoted in the archives.
-VERBATIM_ENCODING = ['utf-8', 'iso-2022-jp']
+VERBATIM_ENCODING = ['iso-2022-jp']
 
 # When the archive is public, should Mailman also make the raw Unix mbox file
 # publically available?
@@ -1718,7 +1709,7 @@ RETRYQUEUE_DIR  = os.path.join(QUEUE_DIR, 'retry')
 MAILDIR_DIR     = os.path.join(QUEUE_DIR, 'maildir')
 
 # Other useful files
-PIDFILE = "/var/run/mailman/mailman.pid"
+PIDFILE = os.path.join(DATA_DIR, 'master-qrunner.pid')
 SITE_PW_FILE = os.path.join(DATA_DIR, 'adm.pw')
 LISTCREATOR_PW_FILE = os.path.join(DATA_DIR, 'creator.pw')
 
@@ -1737,7 +1728,7 @@ def _(s):
 LC_DESCRIPTIONS = {}
 
 def add_language(code, description, charset, direction='ltr'):
-    LC_DESCRIPTIONS[code] = (description, 'utf-8', direction)
+    LC_DESCRIPTIONS[code] = (description, charset, direction)
 
 add_language('ar',    _('Arabic'),              'utf-8',       'rtl')
 add_language('ast',   _('Asturian'),            'iso-8859-1',  'ltr')
