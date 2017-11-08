@@ -1,0 +1,45 @@
+Set the same mode on new aliases and virtual-mailman database files
+as source file. Postfix postmap(1) ignores the umask and the mode
+on a source file.
+
+-- fumiyas, 2009-09-19
+
+diff -upr mailman-2.1.11/Mailman/MTA/Postfix.py mailman-2.1.11-aliases-mode/Mailman/MTA/Postfix.py
+--- mailman-2.1.11/Mailman/MTA/Postfix.py	2008-07-01 01:29:46.000000000 +0900
++++ mailman-2.1.11-aliases-mode/Mailman/MTA/Postfix.py	2009-09-18 23:46:20.000000000 +0900
+@@ -45,19 +45,35 @@ except NameError:
+ 
+ def _update_maps():
+     msg = 'command failed: %s (status: %s, %s)'
++    anew = not os.path.exists(ALIASFILE + '.db') and not os.path.exists(ALIASFILE + '.pag')
+     acmd = mm_cfg.POSTFIX_ALIAS_CMD + ' ' + ALIASFILE
+     status = (os.system(acmd) >> 8) & 0xff
+     if status:
+         errstr = os.strerror(status)
+         syslog('error', msg, acmd, status, errstr)
+         raise RuntimeError, msg % (acmd, status, errstr)
++    if anew:
++	astat = os.stat(ALIASFILE)
++	if os.path.exists(ALIASFILE + '.db'):
++	    os.chmod(ALIASFILE + '.db', astat[ST_MODE])
++	elif os.path.exists(ALIASFILE + '.pag'):
++	    os.chmod(ALIASFILE + '.pag', astat[ST_MODE])
++	    os.chmod(ALIASFILE + '.dir', astat[ST_MODE])
+     if os.path.exists(VIRTFILE):
++	vnew = not os.path.exists(VIRTFILE + '.db') and not os.path.exists(VIRTFILE + '.pag')
+         vcmd = mm_cfg.POSTFIX_MAP_CMD + ' ' + VIRTFILE
+         status = (os.system(vcmd) >> 8) & 0xff
+         if status:
+             errstr = os.strerror(status)
+             syslog('error', msg, vcmd, status, errstr)
+             raise RuntimeError, msg % (vcmd, status, errstr)
++	if vnew:
++	    vstat = os.stat(VIRTFILE)
++	    if os.path.exists(VIRTFILE + '.db'):
++                os.chmod(VIRTFILE + '.db', vstat[ST_MODE])
++	    elif os.path.exists(VIRTFILE + '.pag'):
++                os.chmod(VIRTFILE + '.pag', vstat[ST_MODE])
++                os.chmod(VIRTFILE + '.dir', vstat[ST_MODE])
+ 
+ 
+ 

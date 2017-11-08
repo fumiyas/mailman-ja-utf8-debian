@@ -10,3 +10,11 @@
 79_archiver_slash.patch
 90_gettext_errors.patch
 91_utf8.patch
+## OSSTech patches
+mailman-2.1.11-no-load-iso2022jp.patch
+mailman-2.1.11-prefer-message-encoding.patch
+mailman-2.1-postfix-verp.patch
+mailman-2.1.11-aliases-mode.patch
+mailman-2.1-add-listname-to-subject.patch
+mailman-2.1.17-bounce-to-owner-if-no-processing.patch
+mailman-2.1-obsolete-admin-address.patch

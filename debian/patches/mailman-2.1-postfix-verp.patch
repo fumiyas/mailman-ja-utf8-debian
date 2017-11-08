@@ -1,0 +1,81 @@
+From e480d9f689ecb12a15a73f614505a6cfe7d20158 Mon Sep 17 00:00:00 2001
+From: SATOH Fumiyasu <fumiyas@osstech.co.jp>
+Date: Wed, 8 Nov 2017 16:14:26 +0900
+Subject: [PATCH] Postfix VERP support
+
+Import from http://www.freebsd.org/cgi/cvsweb.cgi/ports/mail/mailman/files/
+
+* patch-Mailman::Defaults.py.in (VERP_STYLE and POSTFIX_XVERP_OPTS only)
+* postfix-verp.diff
+---
+ Mailman/Defaults.py.in         |  7 +++++++
+ Mailman/Handlers/SMTPDirect.py | 11 +++++++----
+ 2 files changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/Mailman/Defaults.py.in b/Mailman/Defaults.py.in
+index e6738192..19e5b5dd 100755
+--- a/Mailman/Defaults.py.in
++++ b/Mailman/Defaults.py.in
+@@ -845,6 +845,13 @@ VERP_CONFIRMATIONS = No
+ # debugging).
+ MAX_AUTORESPONSES_PER_DAY = 10
+ 
++# This patched version of Mailman (patch taken from FreeBSD port) can utilize
++# the Postfix SMTP server's VERP ability.
++# You may set VERP_STYLE = 'Postfix' to enable it.
++VERP_STYLE = 'Manual'
++
++# When using Postfix style VERP you will need the following setting.
++POSTFIX_XVERP_OPTS = '+='
+ 
+ 
+ #####
+diff --git a/Mailman/Handlers/SMTPDirect.py b/Mailman/Handlers/SMTPDirect.py
+index ca6aebdd..86348381 100644
+--- a/Mailman/Handlers/SMTPDirect.py
++++ b/Mailman/Handlers/SMTPDirect.py
+@@ -96,11 +96,11 @@ class Connection:
+ 
+         self.__numsessions = mm_cfg.SMTP_MAX_SESSIONS_PER_CONNECTION
+ 
+-    def sendmail(self, envsender, recips, msgtext):
++    def sendmail(self, envsender, recips, msgtext, mailopts=[]):
+         if self.__conn is None:
+             self.__connect()
+         try:
+-            results = self.__conn.sendmail(envsender, recips, msgtext)
++            results = self.__conn.sendmail(envsender, recips, msgtext, mailopts)
+         except smtplib.SMTPException:
+             # For safety, close this connection.  The next send attempt will
+             # automatically re-open it.  Pass the exception on up.
+@@ -146,7 +146,7 @@ def process(mlist, msg, msgdata):
+     # recipients they'll swallow in a single transaction.
+     deliveryfunc = None
+     if (not msgdata.has_key('personalize') or msgdata['personalize']) and (
+-           msgdata.get('verp') or mlist.personalize):
++           (msgdata.get('verp') and mm_cfg.VERP_STYLE == 'Manual') or mlist.personalize):
+         chunks = [[recip] for recip in recips]
+         msgdata['personalize'] = 1
+         deliveryfunc = verpdeliver
+@@ -412,6 +412,9 @@ def bulkdeliver(mlist, msg, msgdata, envsender, failures, conn):
+     if mlist.include_sender_header:
+         del msg['sender']
+         msg['Sender'] = '"%s" <%s>' % (mlist.real_name, envsender)
++    mailopts=[]
++    if msgdata.get('verp') and mm_cfg.VERP_STYLE == 'Postfix':
++        mailopts.append('XVERP=' + mm_cfg.POSTFIX_XVERP_OPTS)
+     # Get the plain, flattened text of the message, sans unixfrom
+     # using our as_string() method to not mangle From_ and not fold
+     # sub-part headers possibly breaking signatures.
+@@ -421,7 +424,7 @@ def bulkdeliver(mlist, msg, msgdata, envsender, failures, conn):
+     msgid = msg['message-id']
+     try:
+         # Send the message
+-        refused = conn.sendmail(envsender, recips, msgtext)
++        refused = conn.sendmail(envsender, recips, msgtext, mailopts)
+     except smtplib.SMTPRecipientsRefused, e:
+         syslog('smtp-failure', 'All recipients refused: %s, msgid: %s',
+                e, msgid)
+-- 
+2.15.0.rc2
+

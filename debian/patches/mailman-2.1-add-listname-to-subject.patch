@@ -1,0 +1,147 @@
+From eea19c1d12b3e36b28f70cf63693bcc284741746 Mon Sep 17 00:00:00 2001
+From: SATOH Fumiyasu <fumiyas@osstech.co.jp>
+Date: Tue, 16 Dec 2014 17:38:55 +0900
+Subject: [PATCH] Add mlist.real_name to the subject in a notice message
+
+---
+ Mailman/Bouncer.py                 |  5 +++--
+ Mailman/Handlers/MimeDel.py        |  3 ++-
+ Mailman/Handlers/Moderate.py       |  3 ++-
+ Mailman/Queue/BounceRunner.py      |  3 ++-
+ messages/ja/LC_MESSAGES/mailman.po | 16 ++++++++--------
+ 5 files changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/Mailman/Bouncer.py b/Mailman/Bouncer.py
+index 2a1cb539..7d30295c 100644
+--- a/Mailman/Bouncer.py
++++ b/Mailman/Bouncer.py
+@@ -232,9 +232,10 @@ class Bouncer:
+         # meaningless strings for the unused %()s fields so that the language
+         # translators don't have to provide new templates.
+         siteowner = Utils.get_site_email(self.host_name)
++        realname = self.real_name
+         text = Utils.maketext(
+             'bounce.txt',
+-            {'listname' : self.real_name,
++            {'listname' : realname,
+              'addr'     : member,
+              'negative' : '',
+              'did'      : did,
+@@ -242,7 +243,7 @@ class Bouncer:
+              'reenable' : '',
+              'owneraddr': siteowner,
+              }, mlist=self)
+-        subject = _('Bounce action notification')
++        subject = _('%(realname)s Bounce action notification')
+         umsg = Message.UserNotification(self.GetOwnerEmail(),
+                                         siteowner, subject,
+                                         lang=self.preferred_language)
+diff --git a/Mailman/Handlers/MimeDel.py b/Mailman/Handlers/MimeDel.py
+index 691a6e85..76767b8f 100644
+--- a/Mailman/Handlers/MimeDel.py
++++ b/Mailman/Handlers/MimeDel.py
+@@ -264,6 +264,7 @@ def dispose(mlist, msg, msgdata, why):
+     if mlist.filter_action == 2:
+         # Forward it on to the list owner
+         listname = mlist.internal_name()
++        realname = mlist.real_name
+         mlist.ForwardMessage(
+             msg,
+             text=_("""\
+@@ -272,7 +273,7 @@ rules and was prevented from being forwarded on to the list membership.  You
+ are receiving the only remaining copy of the discarded message.
+ 
+ """),
+-            subject=_('Content filtered message notification'))
++            subject=_('%(realname)s Content filtered message notification'))
+     if mlist.filter_action == 3 and \
+            mm_cfg.OWNERS_CAN_PRESERVE_FILTERED_MESSAGES:
+         badq = get_switchboard(mm_cfg.BADQUEUE_DIR)
+diff --git a/Mailman/Handlers/Moderate.py b/Mailman/Handlers/Moderate.py
+index 49ed1d7e..f829c14c 100644
+--- a/Mailman/Handlers/Moderate.py
++++ b/Mailman/Handlers/Moderate.py
+@@ -157,9 +157,10 @@ def do_discard(mlist, msg):
+         lang = mlist.preferred_language
+         varhelp = '%s/?VARHELP=privacy/sender/discard_these_nonmembers' % \
+                   mlist.GetScriptURL('admin', absolute=1)
++        realname = mlist.real_name
+         nmsg = Message.UserNotification(mlist.GetOwnerEmail(),
+                                         mlist.GetBouncesEmail(),
+-                                        _('Auto-discard notification'),
++                                        _('%(realname)s Auto-discard notification'),
+                                         lang=lang)
+         nmsg.set_type('multipart/mixed')
+         text = MIMEText(Utils.wrap(_(
+diff --git a/Mailman/Queue/BounceRunner.py b/Mailman/Queue/BounceRunner.py
+index 2d14f284..20a3ea09 100644
+--- a/Mailman/Queue/BounceRunner.py
++++ b/Mailman/Queue/BounceRunner.py
+@@ -356,6 +356,7 @@ def maybe_forward(mlist, msg):
+     # If not, simply discard it.
+     if mlist.bounce_unrecognized_goes_to_list_owner:
+         adminurl = mlist.GetScriptURL('admin', absolute=1) + '/bounce'
++        realname = mlist.real_name
+         mlist.ForwardMessage(msg,
+                              text=_("""\
+ The attached message was received as a bounce, but either the bounce format
+@@ -367,7 +368,7 @@ For more information see:
+ %(adminurl)s
+ 
+ """),
+-                             subject=_('Uncaught bounce notification'),
++                             subject=_('%(realname)s Uncaught bounce notification'),
+                              tomoderators=0)
+         syslog('bounce',
+                '%s: forwarding unrecognized, message-id: %s',
+diff --git a/messages/ja/LC_MESSAGES/mailman.po b/messages/ja/LC_MESSAGES/mailman.po
+index 797c9f24..be5408c5 100755
+--- a/messages/ja/LC_MESSAGES/mailman.po
++++ b/messages/ja/LC_MESSAGES/mailman.po
+@@ -218,8 +218,8 @@ msgid "disabled"
+ msgstr "配送停止"
+ 
+ #: Mailman/Bouncer.py:245
+-msgid "Bounce action notification"
+-msgstr "配送エラー処理通知"
++msgid "%(realname)s bounce action notification"
++msgstr "%(realname)s 配送エラー処理通知"
+ 
+ #: Mailman/Bouncer.py:300
+ msgid " The last bounce received from you was dated %(date)s"
+@@ -8202,8 +8202,8 @@ msgstr ""
+ "破棄されなかった部分だけを配信します.\n"
+ 
+ #: Mailman/Handlers/MimeDel.py:275
+-msgid "Content filtered message notification"
+-msgstr "添付ファイル削除通知"
++msgid "%(realname)s Content filtered message notification"
++msgstr "%(realname)s 添付ファイル削除通知"
+ 
+ #: Mailman/Handlers/Moderate.py:145
+ msgid ""
+@@ -8221,8 +8221,8 @@ msgstr ""
+ "%(listowner)s 宛にご連絡ください。"
+ 
+ #: Mailman/Handlers/Moderate.py:162
+-msgid "Auto-discard notification"
+-msgstr "自動破棄通知"
++msgid "%(realname)s Auto-discard notification"
++msgstr "%(realname)s 自動破棄通知"
+ 
+ #: Mailman/Handlers/Moderate.py:165
+ msgid "The attached message has been automatically discarded."
+@@ -8571,8 +8571,8 @@ msgstr ""
+ "\n"
+ 
+ #: Mailman/Queue/BounceRunner.py:370
+-msgid "Uncaught bounce notification"
+-msgstr "自動配送エラー処理の例外通知"
++msgid "%(realname)s Uncaught bounce notification"
++msgstr "%(realname)s 自動配送エラー処理の例外通知"
+ 
+ #: Mailman/Queue/CommandRunner.py:98
+ msgid "Ignoring non-text/plain MIME parts"
+-- 
+2.15.0.rc1
+
