@@ -1,0 +1,111 @@
+From c811c27e568bdb49cc3aab1b22fb82b5d9d37f7c Mon Sep 17 00:00:00 2001
+From: SATOH Fumiyasu <fumiyas@osstech.co.jp>
+Date: Thu, 9 Nov 2017 12:25:13 +0900
+Subject: [PATCH] CookHeaders.py: subject_prefix: Support thread_id, date_* and
+ time_*
+
+Examples:
+
+* m.subject_prefix = '[Listname %(thread_id)d]'
+* m.subject_prefix = '[Listname %(date_year)d%(date_month)d-%(thread_id)05d]'
+---
+ Mailman/Handlers/CookHeaders.py | 51 +++++++++++++++++++++++++++++++++++------
+ 1 file changed, 44 insertions(+), 7 deletions(-)
+
+diff --git a/Mailman/Handlers/CookHeaders.py b/Mailman/Handlers/CookHeaders.py
+index 3e2806f0..299ccdaa 100755
+--- a/Mailman/Handlers/CookHeaders.py
++++ b/Mailman/Handlers/CookHeaders.py
+@@ -22,6 +22,7 @@ list configuration.
+ 
+ from __future__ import nested_scopes
+ import re
++import time
+ from types import UnicodeType
+ 
+ from email.Charset import Charset
+@@ -399,30 +400,51 @@ def prefix_subject(mlist, msg, msgdata):
+     # If the subject_prefix contains '%d', it is replaced with the
+     # mailing list sequential number.  Sequential number format allows
+     # '%d' or '%05d' like pattern.
+-    prefix_pattern = re.escape(prefix)
++    prefix_pattern = re.escape(prefix) + r'\s?'
+     # unescape '%' :-<
+     prefix_pattern = '%'.join(prefix_pattern.split(r'\%'))
+-    p = re.compile('%\d*d')
+-    if p.search(prefix, 1):
++    thread_id_used = False
++    p = re.compile(r'%(\\\([\w\\]+\\\))?\d*d')
++    if p.search(prefix_pattern, 1):
++        # capture thread_id
++        (prefix_pattern, thread_id_used) = re.subn(
++                r'%\\\(thread\\_id\\\)\d*d',
++                '\s*(?P<thread_id>\d+)\s*', prefix_pattern, 1)
+         # prefix have number, so we should search prefix w/number in subject.
+         # Also, force new style.
+         prefix_pattern = p.sub(r'\s*\d+\s*', prefix_pattern)
+         old_style = False
+     else:
+         old_style = mm_cfg.OLD_STYLE_PREFIXING
+-    subject = re.sub(prefix_pattern, '', subject)
+     # Previously the following re didn't have the first \s*. It would fail
+     # if the incoming Subject: was like '[prefix] Re: Re: Re:' because of the
+     # leading space after stripping the prefix. It is not known what MUA would
+     # create such a Subject:, but the issue was reported.
+     rematch = re.match(
+-                       '(\s*(RE|AW|SV|VS)\s*(\[\d+\])?\s*:\s*)+',
+-                        subject, re.I)
++            '((?i)\s*(?:RE|AW|SV|VS)\s*(\[\d+\])?\s*:\s*)+' +
++            '(' + prefix_pattern + ')?' +
++            '((?i)\s*(?:RE|AW|SV|VS)\s*(\[\d+\])?\s*:\s*)*',
++            subject)
++
++    try:
++        thread_id = mlist.thread_id
++    except AttributeError:
++        thread_id = mlist.thread_id = mlist.post_id
++
+     if rematch:
+         subject = subject[rematch.end():]
+         recolon = 'Re:'
++        if thread_id_used:
++            try:
++                thread_id = int(rematch.groupdict().get('thread_id'))
++            except TypeError:
++                mlist.thread_id += 1
+     else:
+         recolon = ''
++        if thread_id_used:
++            mlist.thread_id += 1
++
++    subject = re.sub(prefix_pattern, '', subject)
+     # Strip leading and trailing whitespace from subject.
+     subject = subject.strip()
+     # At this point, subject may become null if someone post mail with
+@@ -440,7 +462,22 @@ def prefix_subject(mlist, msg, msgdata):
+     try:
+         prefix = prefix % mlist.post_id
+     except TypeError:
+-        pass
++        try:
++            now = time.localtime()
++            d = {
++                'post_id':      mlist.post_id,
++                'thread_id':    thread_id,
++                'date_year':    now.tm_year,
++                'date_yy':      now.tm_year % 100,
++                'date_month':   now.tm_mon,
++                'date_mday':    now.tm_mday,
++                'time_hour':    now.tm_hour,
++                'time_minute':  now.tm_min,
++                'time_second':  now.tm_sec,
++            }
++            prefix = prefix % d
++        except TypeError:
++            pass
+     # If charset is 'us-ascii', try to concatnate as string because there
+     # is some weirdness in Header module (TK)
+     if cset == 'us-ascii':
+-- 
+2.15.0.rc2
+

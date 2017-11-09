@@ -18,3 +18,4 @@ mailman-2.1.11-aliases-mode.patch
 mailman-2.1-add-listname-to-subject.patch
 mailman-2.1.17-bounce-to-owner-if-no-processing.patch
 mailman-2.1-obsolete-admin-address.patch
+mailman-2.1-subject_prefix_thread_id.patch
